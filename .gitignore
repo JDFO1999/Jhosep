@@ -5,3 +5,6 @@ target/
 .env
 *.tsbuildinfo
 src-tauri/target/
+
+.vercel
+.env*
