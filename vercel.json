@@ -1,5 +1,10 @@
 {
   "buildCommand": "npx prisma generate && npx prisma migrate deploy && npx tsx prisma/seed.ts && next build",
   "installCommand": "npm install",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  }
 }
