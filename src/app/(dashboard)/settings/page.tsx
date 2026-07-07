@@ -148,6 +148,7 @@ export default function SettingsPage() {
         username: string;
         currentPassword: string;
         newPassword?: string;
+        confirmPassword?: string;
       } = {
         name: data.name,
         username: data.username,
@@ -156,6 +157,7 @@ export default function SettingsPage() {
 
       if (data.newPassword) {
         payload.newPassword = data.newPassword;
+        payload.confirmPassword = data.confirmPassword;
       }
 
       await updateSettings(payload);

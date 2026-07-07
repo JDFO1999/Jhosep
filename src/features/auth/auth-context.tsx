@@ -27,6 +27,7 @@ interface AuthContextType {
     username: string;
     currentPassword: string;
     newPassword?: string;
+    confirmPassword?: string;
   }) => Promise<void>;
 }
 
@@ -85,6 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     username: string;
     currentPassword: string;
     newPassword?: string;
+    confirmPassword?: string;
   }) => {
     const res = await fetch("/api/auth/settings", {
       method: "PUT",
