@@ -8,3 +8,5 @@ src-tauri/target/
 
 .vercel
 .env*
+deploy-helper.js
+localstorage-polyfill.js
