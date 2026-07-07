@@ -33,6 +33,7 @@ export async function GET(request: Request) {
         { ip: { contains: search, mode: "insensitive" } },
         { mac: { contains: search, mode: "insensitive" } },
         { computerName: { contains: search, mode: "insensitive" } },
+        { clave: { contains: search, mode: "insensitive" } },
         { department: { name: { contains: search, mode: "insensitive" } } },
       ];
     }
@@ -101,6 +102,7 @@ export async function POST(request: Request) {
         ip: parsed.data.ip || null,
         mac: parsed.data.mac || null,
         computerName: parsed.data.computerName,
+        clave: parsed.data.clave || null,
         departmentId: parsed.data.departmentId,
       },
       include: {

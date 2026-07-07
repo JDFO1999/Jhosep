@@ -35,6 +35,7 @@ model Person {
   ip           String?
   mac          String?
   computerName String     @map("computer_name")
+  clave        String?
   departmentId String     @map("department_id")
   isDeleted    Boolean    @default(false) @map("is_deleted")
   deletedAt    DateTime?  @map("deleted_at")

@@ -103,6 +103,8 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronUp,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 interface Person {
@@ -111,6 +113,7 @@ interface Person {
   ip: string | null;
   mac: string | null;
   computerName: string;
+  clave: string | null;
   departmentId: string;
   isDeleted: boolean;
   deletedAt: string | null;
@@ -600,6 +603,16 @@ export default function PeoplePage() {
         ),
         meta: { label: "Equipo" } as ExtendedColumnMeta,
       }),
+      columnHelper.accessor("clave", {
+        header: () => <span>Clave</span>,
+        cell: ({ getValue }) => {
+          const value = getValue();
+          if (!value) return <span className="text-muted-foreground">—</span>;
+          return <ClaveCell value={value} />;
+        },
+        meta: { label: "Clave" } as ExtendedColumnMeta,
+        enableSorting: false,
+      }),
       columnHelper.accessor("department.name", {
         id: "department",
         header: ({ column }) => (
@@ -706,7 +719,19 @@ export default function PeoplePage() {
                   )}
                   Copiar Equipo
                 </DropdownMenuItem>
-                {(person.ip || person.mac) && <DropdownMenuSeparator />}
+                {person.clave && (
+                  <DropdownMenuItem
+                    onClick={() => copyToClipboard(person.clave!, "Clave")}
+                  >
+                    {copiedField === "Clave" ? (
+                      <CopyCheck className="h-4 w-4 text-emerald-500" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                    Copiar Clave
+                  </DropdownMenuItem>
+                )}
+                {(person.ip || person.mac || person.clave) && <DropdownMenuSeparator />}
                 {!person.isDeleted ? (
                   <>
                     <DropdownMenuItem
@@ -990,6 +1015,9 @@ export default function PeoplePage() {
                     </TableCell>
                     <TableCell>
                       <Skeleton className="h-4 w-36" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-24" />
                     </TableCell>
                     <TableCell>
                       <Skeleton className="h-4 w-24" />
@@ -1356,11 +1384,13 @@ function PersonFormDialog({
       ip: "",
       mac: "",
       computerName: "",
+      clave: "",
       departmentId: "",
     },
   });
 
   const isEditing = !!person;
+  const [claveVisible, setClaveVisible] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -1370,6 +1400,7 @@ function PersonFormDialog({
           ip: person.ip ?? "",
           mac: person.mac ?? "",
           computerName: person.computerName,
+          clave: person.clave ?? "",
           departmentId: person.departmentId,
         });
       } else {
@@ -1378,6 +1409,7 @@ function PersonFormDialog({
           ip: "",
           mac: "",
           computerName: "",
+          clave: "",
           departmentId: "",
         });
       }
@@ -1485,6 +1517,34 @@ function PersonFormDialog({
         </div>
 
         <div className="space-y-1.5">
+          <Label htmlFor="person-clave">Clave</Label>
+          <div className="relative">
+            <Input
+              id="person-clave"
+              type={claveVisible ? "text" : "password"}
+              placeholder="Clave o contraseña asociada"
+              {...register("clave")}
+              className={cn(errors.clave && "border-destructive", "pr-10")}
+            />
+            <button
+              type="button"
+              onClick={() => setClaveVisible(!claveVisible)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label={claveVisible ? "Ocultar clave" : "Mostrar clave"}
+            >
+              {claveVisible ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
+          {errors.clave && (
+            <p className="text-xs text-destructive">{errors.clave.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-1.5">
           <Label htmlFor="person-department">
             Departamento <span className="text-destructive">*</span>
           </Label>
@@ -1568,6 +1628,29 @@ function EmptyState({
           Limpiar filtros
         </Button>
       )}
+    </div>
+  );
+}
+
+function ClaveCell({ value }: { value: string }) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="font-mono text-xs">
+        {visible ? value : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}
+      </span>
+      <button
+        type="button"
+        onClick={() => setVisible(!visible)}
+        className="flex items-center justify-center h-5 w-5 rounded text-muted-foreground hover:text-foreground transition-colors"
+        aria-label={visible ? "Ocultar clave" : "Mostrar clave"}
+      >
+        {visible ? (
+          <EyeOff className="h-3.5 w-3.5" />
+        ) : (
+          <Eye className="h-3.5 w-3.5" />
+        )}
+      </button>
     </div>
   );
 }

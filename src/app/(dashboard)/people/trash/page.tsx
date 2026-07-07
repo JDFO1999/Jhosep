@@ -13,6 +13,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Inbox,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -58,6 +60,7 @@ interface Person {
   ip: string | null;
   mac: string | null;
   computerName: string;
+  clave: string | null;
   departmentId: string;
   isDeleted: boolean;
   deletedAt: string | null;
@@ -112,6 +115,7 @@ function TableSkeleton() {
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-4 w-32" />
           <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-4 w-24" />
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-4 w-36" />
           <Skeleton className="h-8 w-8 ml-auto" />
@@ -434,6 +438,7 @@ export default function TrashPage() {
               <TableHead>IP</TableHead>
               <TableHead>MAC</TableHead>
               <TableHead>Equipo</TableHead>
+              <TableHead>Clave</TableHead>
               <TableHead>Departamento</TableHead>
               <TableHead>Eliminado el</TableHead>
               <TableHead className="w-12" />
@@ -442,13 +447,13 @@ export default function TrashPage() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={8}>
+                <TableCell colSpan={9}>
                   <TableSkeleton />
                 </TableCell>
               </TableRow>
             ) : people.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8}>
+                <TableCell colSpan={9}>
                   <EmptyState />
                 </TableCell>
               </TableRow>
@@ -484,6 +489,9 @@ export default function TrashPage() {
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {person.computerName}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    <TrashClaveCell value={person.clave} />
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {person.department.name}
@@ -722,6 +730,30 @@ export default function TrashPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
+  );
+}
+
+function TrashClaveCell({ value }: { value: string | null }) {
+  const [visible, setVisible] = useState(false);
+  if (!value) return <span>-</span>;
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="font-mono text-xs">
+        {visible ? value : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}
+      </span>
+      <button
+        type="button"
+        onClick={() => setVisible(!visible)}
+        className="flex items-center justify-center h-5 w-5 rounded text-muted-foreground hover:text-foreground transition-colors"
+        aria-label={visible ? "Ocultar clave" : "Mostrar clave"}
+      >
+        {visible ? (
+          <EyeOff className="h-3.5 w-3.5" />
+        ) : (
+          <Eye className="h-3.5 w-3.5" />
+        )}
+      </button>
     </div>
   );
 }

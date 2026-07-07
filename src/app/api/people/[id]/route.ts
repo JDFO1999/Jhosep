@@ -32,6 +32,7 @@ export async function PUT(
         ip: parsed.data.ip || null,
         mac: parsed.data.mac || null,
         computerName: parsed.data.computerName,
+        clave: parsed.data.clave || null,
         departmentId: parsed.data.departmentId,
       },
       include: {

@@ -48,6 +48,7 @@ export const personSchema = z.object({
       "MAC inválida (formato: AA:BB:CC:DD:EE:FF)"
     ),
   computerName: z.string().min(1, "Nombre de equipo requerido").trim().max(100),
+  clave: z.string().trim().max(200).optional().or(z.literal("")),
   departmentId: z.string().min(1, "Departamento requerido"),
 });
 
