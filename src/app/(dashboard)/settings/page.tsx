@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -111,10 +111,10 @@ export default function SettingsPage() {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<SettingsInput>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(settingsSchema) as any,
+    resolver: zodResolver(settingsSchema),
     defaultValues: {
       name: admin?.name ?? "",
       username: admin?.username ?? "",
@@ -122,16 +122,19 @@ export default function SettingsPage() {
       newPassword: "",
       confirmPassword: "",
     },
-    values: admin
-      ? {
-          name: admin.name,
-          username: admin.username,
-          currentPassword: "",
-          newPassword: "",
-          confirmPassword: "",
-        }
-      : undefined,
   });
+
+  useEffect(() => {
+    if (admin) {
+      reset({
+        name: admin.name,
+        username: admin.username,
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    }
+  }, [admin, reset]);
 
   const newPasswordValue = watch("newPassword");
   const isChangingPassword = !!newPasswordValue;
