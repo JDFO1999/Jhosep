@@ -7,9 +7,8 @@ async function main() {
   const existing = await prisma.admin.findFirst();
 
   if (existing) {
-    if (!existing.role) {
-      await prisma.admin.update({
-        where: { id: existing.id },
+    if (existing.role !== "admin") {
+      await prisma.admin.updateMany({
         data: { role: "admin" },
       });
       console.log("Admin role updated to admin.");
