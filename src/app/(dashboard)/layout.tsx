@@ -41,6 +41,7 @@ import {
   Moon,
   LogOut,
   User,
+  UserPlus,
 } from "lucide-react";
 
 interface NavItem {
@@ -54,6 +55,7 @@ const navItems: NavItem[] = [
   { label: "Personas", href: "/people", icon: Users },
   { label: "Papelera", href: "/people/trash", icon: Trash2 },
   { label: "Departamentos", href: "/departments", icon: Building2 },
+  { label: "Usuarios", href: "/users", icon: UserPlus },
   { label: "Configuracion", href: "/settings", icon: Settings },
 ];
 
@@ -61,6 +63,7 @@ const BREADCRUMB_LABELS: Record<string, string> = {
   people: "Personas",
   trash: "Papelera",
   departments: "Departamentos",
+  users: "Usuarios",
   settings: "Configuracion",
 };
 
@@ -91,10 +94,16 @@ function SidebarNav({
   onCloseMobile?: () => void;
 }) {
   const pathname = usePathname();
+  const { admin } = useAuth();
+
+  const filteredItems = navItems.filter((item) => {
+    if (item.href === "/users" && admin?.role !== "admin") return false;
+    return true;
+  });
 
   return (
     <nav className="flex flex-col gap-0.5 px-2 py-3">
-      {navItems.map((item) => {
+        {filteredItems.map((item) => {
         const isActive =
           item.href === "/"
             ? pathname === "/"

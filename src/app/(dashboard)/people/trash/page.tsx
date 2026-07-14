@@ -48,6 +48,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/features/auth/auth-context";
 
 interface Department {
   id: string;
@@ -126,6 +127,7 @@ function TableSkeleton() {
 }
 
 export default function TrashPage() {
+  const { admin } = useAuth();
   const [people, setPeople] = useState<Person[]>([]);
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
@@ -438,7 +440,7 @@ export default function TrashPage() {
               <TableHead>IP</TableHead>
               <TableHead>MAC</TableHead>
               <TableHead>Equipo</TableHead>
-              <TableHead>Clave</TableHead>
+              {admin?.role === "admin" && <TableHead>Clave</TableHead>}
               <TableHead>Departamento</TableHead>
               <TableHead>Eliminado el</TableHead>
               <TableHead className="w-12" />
@@ -447,13 +449,13 @@ export default function TrashPage() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={9}>
+                <TableCell colSpan={admin?.role === "admin" ? 9 : 8}>
                   <TableSkeleton />
                 </TableCell>
               </TableRow>
             ) : people.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9}>
+                <TableCell colSpan={admin?.role === "admin" ? 9 : 8}>
                   <EmptyState />
                 </TableCell>
               </TableRow>
@@ -490,9 +492,11 @@ export default function TrashPage() {
                   <TableCell className="text-muted-foreground">
                     {person.computerName}
                   </TableCell>
+                  {admin?.role === "admin" && (
                   <TableCell className="text-muted-foreground">
                     <TrashClaveCell value={person.clave} />
                   </TableCell>
+                  )}
                   <TableCell className="text-muted-foreground">
                     {person.department.name}
                   </TableCell>

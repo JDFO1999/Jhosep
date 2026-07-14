@@ -11,7 +11,7 @@ export async function GET() {
 
     const admin = await prisma.admin.findUnique({
       where: { id: session.userId },
-      select: { id: true, name: true, username: true },
+      select: { id: true, name: true, username: true, role: true },
     });
 
     if (!admin) {

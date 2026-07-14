@@ -22,13 +22,34 @@ export const settingsSchema = z
   })
   .refine(
     (data) => {
-      if (data.newPassword && data.newPassword !== data.confirmPassword) {
+      if (data.newPassword && data.confirmPassword && data.newPassword !== data.confirmPassword) {
         return false;
       }
       return true;
     },
     { message: "Las contraseñas no coinciden", path: ["confirmPassword"] }
   );
+
+export const userSchema = z
+  .object({
+    name: z.string().min(1, "Nombre requerido").trim(),
+    username: z.string().min(1, "Usuario requerido").trim(),
+    password: z.string().min(6, "Mínimo 6 caracteres"),
+    confirmPassword: z.string().min(1, "Confirma la contraseña"),
+    role: z.enum(["admin", "user"]),
+  })
+  .refine(
+    (data) => data.password === data.confirmPassword,
+    { message: "Las contraseñas no coinciden", path: ["confirmPassword"] }
+  );
+
+export const editUserSchema = z.object({
+  name: z.string().min(1, "Nombre requerido").trim(),
+  username: z.string().min(1, "Usuario requerido").trim(),
+  password: z.string().min(6, "Mínimo 6 caracteres").optional().or(z.literal("")),
+  confirmPassword: z.string().optional().or(z.literal("")),
+  role: z.enum(["admin", "user"]),
+});
 
 export const departmentSchema = z.object({
   name: z.string().min(1, "Nombre requerido").trim().max(100),
@@ -56,3 +77,5 @@ export type LoginInput = z.infer<typeof loginSchema>;
 export type SettingsInput = z.infer<typeof settingsSchema>;
 export type DepartmentInput = z.infer<typeof departmentSchema>;
 export type PersonInput = z.infer<typeof personSchema>;
+export type UserInput = z.infer<typeof userSchema>;
+export type EditUserInput = z.infer<typeof editUserSchema>;

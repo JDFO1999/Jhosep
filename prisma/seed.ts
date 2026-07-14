@@ -5,7 +5,15 @@ const prisma = new PrismaClient();
 
 async function main() {
   const existing = await prisma.admin.findFirst();
+
   if (existing) {
+    if (!existing.role) {
+      await prisma.admin.update({
+        where: { id: existing.id },
+        data: { role: "admin" },
+      });
+      console.log("Admin role updated to admin.");
+    }
     console.log("Seed already executed. Skipping.");
     return;
   }
@@ -17,6 +25,7 @@ async function main() {
       name: "Administrador",
       username: "admin",
       passwordHash: hash,
+      role: "admin",
     },
   });
 

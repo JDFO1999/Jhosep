@@ -48,6 +48,7 @@ export async function POST(request: Request) {
         id: admin.id,
         name: admin.name,
         username: admin.username,
+        role: admin.role,
       },
     });
   } catch (error) {

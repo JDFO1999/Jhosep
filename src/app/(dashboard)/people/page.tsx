@@ -74,6 +74,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { personSchema, type PersonInput } from "@/lib/validations";
+import { useAuth } from "@/features/auth/auth-context";
 import {
   Search,
   Plus,
@@ -179,6 +180,7 @@ interface ExtendedColumnMeta {
 }
 
 export default function PeoplePage() {
+  const { admin } = useAuth();
   const [people, setPeople] = useState<Person[]>([]);
   const [pagination, setPagination] = useState<PaginationMeta>({
     page: 1,
@@ -603,16 +605,20 @@ export default function PeoplePage() {
         ),
         meta: { label: "Equipo" } as ExtendedColumnMeta,
       }),
-      columnHelper.accessor("clave", {
-        header: () => <span>Clave</span>,
-        cell: ({ getValue }) => {
-          const value = getValue();
-          if (!value) return <span className="text-muted-foreground">—</span>;
-          return <ClaveCell value={value} />;
-        },
-        meta: { label: "Clave" } as ExtendedColumnMeta,
-        enableSorting: false,
-      }),
+      ...(admin?.role === "admin"
+        ? [
+            columnHelper.accessor("clave", {
+              header: () => <span>Clave</span>,
+              cell: ({ getValue }) => {
+                const value = getValue();
+                if (!value) return <span className="text-muted-foreground">—</span>;
+                return <ClaveCell value={value} />;
+              },
+              meta: { label: "Clave" } as ExtendedColumnMeta,
+              enableSorting: false,
+            }),
+          ]
+        : []),
       columnHelper.accessor("department.name", {
         id: "department",
         header: ({ column }) => (
@@ -719,7 +725,7 @@ export default function PeoplePage() {
                   )}
                   Copiar Equipo
                 </DropdownMenuItem>
-                {person.clave && (
+                {person.clave && admin?.role === "admin" && (
                   <DropdownMenuItem
                     onClick={() => copyToClipboard(person.clave!, "Clave")}
                   >
@@ -776,7 +782,7 @@ export default function PeoplePage() {
       }),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [copiedField]
+    [copiedField, admin?.role]
   );
 
   const table = useReactTable({
@@ -1391,6 +1397,7 @@ function PersonFormDialog({
 
   const isEditing = !!person;
   const [claveVisible, setClaveVisible] = useState(false);
+  const { admin } = useAuth();
 
   useEffect(() => {
     if (open) {
@@ -1516,6 +1523,7 @@ function PersonFormDialog({
           )}
         </div>
 
+        {admin?.role === "admin" && (
         <div className="space-y-1.5">
           <Label htmlFor="person-clave">Clave</Label>
           <div className="relative">
@@ -1543,6 +1551,7 @@ function PersonFormDialog({
             <p className="text-xs text-destructive">{errors.clave.message}</p>
           )}
         </div>
+        )}
 
         <div className="space-y-1.5">
           <Label htmlFor="person-department">

@@ -15,6 +15,7 @@ interface Admin {
   id: string;
   name: string;
   username: string;
+  role: string;
 }
 
 interface AuthContextType {
