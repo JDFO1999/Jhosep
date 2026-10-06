@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { personSchema } from "@/lib/validations";
-import { getSession, hashPassword } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
+import { encryptClave } from "@/lib/clave-crypto";
 import type { Prisma } from "@prisma/client";
 
 export async function GET(request: Request) {
@@ -104,7 +105,7 @@ export async function POST(request: Request) {
         ip: parsed.data.ip || null,
         mac: parsed.data.mac || null,
         computerName: parsed.data.computerName,
-        clave: parsed.data.clave ? await hashPassword(parsed.data.clave) : null,
+        clave: parsed.data.clave ? encryptClave(parsed.data.clave) : null,
         departmentId: parsed.data.departmentId,
       },
       include: {

@@ -75,6 +75,7 @@ import {
 import { cn } from "@/lib/utils";
 import { personSchema, type PersonInput } from "@/lib/validations";
 import { useAuth } from "@/features/auth/auth-context";
+import { ClaveCopyButton, fetchClave } from "@/components/clave-copy-button";
 import {
   Search,
   Plus,
@@ -104,9 +105,6 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronUp,
-  Eye,
-  EyeOff,
-  Lock,
 } from "lucide-react";
 
 interface Person {
@@ -476,6 +474,17 @@ export default function PeoplePage() {
     }
   };
 
+  const handleCopyClave = async (personId: string) => {
+    try {
+      const clave = await fetchClave(personId);
+      await copyToClipboard(clave, "Clave");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Error al copiar la clave"
+      );
+    }
+  };
+
   const selectedCount = Object.values(rowSelection).filter(Boolean).length;
 
   const columns = useMemo(
@@ -610,12 +619,9 @@ export default function PeoplePage() {
         ? [
             columnHelper.accessor("hasClave", {
               header: () => <span>Clave</span>,
-              cell: ({ getValue }) =>
-                getValue() ? (
-                  <Badge variant="outline" className="gap-1 font-normal">
-                    <Lock className="h-3 w-3" />
-                    Guardada
-                  </Badge>
+              cell: ({ row }) =>
+                row.original.hasClave ? (
+                  <ClaveCopyButton personId={row.original.id} />
                 ) : (
                   <span className="text-muted-foreground">—</span>
                 ),
@@ -731,9 +737,13 @@ export default function PeoplePage() {
                   Copiar Equipo
                 </DropdownMenuItem>
                 {person.hasClave && admin?.role === "admin" && (
-                  <DropdownMenuItem disabled>
-                    <Lock className="h-4 w-4" />
-                    Clave guardada
+                  <DropdownMenuItem onClick={() => handleCopyClave(person.id)}>
+                    {copiedField === "Clave" ? (
+                      <CopyCheck className="h-4 w-4 text-emerald-500" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                    Copiar Clave
                   </DropdownMenuItem>
                 )}
                 {(person.ip || person.mac) && <DropdownMenuSeparator />}
@@ -1395,7 +1405,6 @@ function PersonFormDialog({
   });
 
   const isEditing = !!person;
-  const [claveVisible, setClaveVisible] = useState(false);
   const { admin } = useAuth();
 
   useEffect(() => {
@@ -1434,6 +1443,20 @@ function PersonFormDialog({
 
   const onFormSubmit = async (data: PersonInput) => {
     await onSubmit(data);
+  };
+
+  const handleCopyInputClave = async () => {
+    const value = watch("clave");
+    if (!value) {
+      toast.error("No hay clave para copiar");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success("Clave copiada al portapapeles");
+    } catch {
+      toast.error("Error al copiar");
+    }
   };
 
   const departmentValue = watch("departmentId");
@@ -1528,7 +1551,7 @@ function PersonFormDialog({
           <div className="relative">
             <Input
               id="person-clave"
-              type={claveVisible ? "text" : "password"}
+              type="password"
               placeholder={
                 isEditing && person?.hasClave
                   ? "Dejar vacío para mantener la clave actual"
@@ -1540,15 +1563,11 @@ function PersonFormDialog({
             />
             <button
               type="button"
-              onClick={() => setClaveVisible(!claveVisible)}
+              onClick={handleCopyInputClave}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label={claveVisible ? "Ocultar clave" : "Mostrar clave"}
+              aria-label="Copiar clave"
             >
-              {claveVisible ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
+              <Copy className="h-4 w-4" />
             </button>
           </div>
           {errors.clave && (

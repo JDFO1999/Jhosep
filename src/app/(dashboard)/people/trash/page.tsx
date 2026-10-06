@@ -13,7 +13,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Inbox,
-  Lock,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -48,6 +47,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth/auth-context";
+import { ClaveCopyButton } from "@/components/clave-copy-button";
 
 interface Department {
   id: string;
@@ -494,10 +494,7 @@ export default function TrashPage() {
                   {admin?.role === "admin" && (
                   <TableCell className="text-muted-foreground">
                     {person.hasClave ? (
-                      <Badge variant="outline" className="gap-1 font-normal">
-                        <Lock className="h-3 w-3" />
-                        Guardada
-                      </Badge>
+                      <ClaveCopyButton personId={person.id} />
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}
