@@ -13,8 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Inbox,
-  Eye,
-  EyeOff,
+  Lock,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -61,7 +60,7 @@ interface Person {
   ip: string | null;
   mac: string | null;
   computerName: string;
-  clave: string | null;
+  hasClave: boolean;
   departmentId: string;
   isDeleted: boolean;
   deletedAt: string | null;
@@ -494,7 +493,14 @@ export default function TrashPage() {
                   </TableCell>
                   {admin?.role === "admin" && (
                   <TableCell className="text-muted-foreground">
-                    <TrashClaveCell value={person.clave} />
+                    {person.hasClave ? (
+                      <Badge variant="outline" className="gap-1 font-normal">
+                        <Lock className="h-3 w-3" />
+                        Guardada
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
                   </TableCell>
                   )}
                   <TableCell className="text-muted-foreground">
@@ -734,30 +740,6 @@ export default function TrashPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
-  );
-}
-
-function TrashClaveCell({ value }: { value: string | null }) {
-  const [visible, setVisible] = useState(false);
-  if (!value) return <span>-</span>;
-  return (
-    <div className="flex items-center gap-1.5">
-      <span className="font-mono text-xs">
-        {visible ? value : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}
-      </span>
-      <button
-        type="button"
-        onClick={() => setVisible(!visible)}
-        className="flex items-center justify-center h-5 w-5 rounded text-muted-foreground hover:text-foreground transition-colors"
-        aria-label={visible ? "Ocultar clave" : "Mostrar clave"}
-      >
-        {visible ? (
-          <EyeOff className="h-3.5 w-3.5" />
-        ) : (
-          <Eye className="h-3.5 w-3.5" />
-        )}
-      </button>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { personSchema } from "@/lib/validations";
-import { getSession } from "@/lib/auth";
+import { getSession, hashPassword } from "@/lib/auth";
 import type { Prisma } from "@prisma/client";
 
 export async function GET(request: Request) {
@@ -33,7 +33,6 @@ export async function GET(request: Request) {
         { ip: { contains: search, mode: "insensitive" } },
         { mac: { contains: search, mode: "insensitive" } },
         { computerName: { contains: search, mode: "insensitive" } },
-        { clave: { contains: search, mode: "insensitive" } },
         { department: { name: { contains: search, mode: "insensitive" } } },
       ];
     }
@@ -66,7 +65,10 @@ export async function GET(request: Request) {
     ]);
 
     return NextResponse.json({
-      people,
+      people: people.map(({ clave, ...person }) => ({
+        ...person,
+        hasClave: !!clave,
+      })),
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error) {
@@ -102,7 +104,7 @@ export async function POST(request: Request) {
         ip: parsed.data.ip || null,
         mac: parsed.data.mac || null,
         computerName: parsed.data.computerName,
-        clave: parsed.data.clave || null,
+        clave: parsed.data.clave ? await hashPassword(parsed.data.clave) : null,
         departmentId: parsed.data.departmentId,
       },
       include: {
@@ -110,7 +112,11 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ person }, { status: 201 });
+    const { clave, ...rest } = person;
+    return NextResponse.json(
+      { person: { ...rest, hasClave: !!clave } },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("POST person error:", error);
     return NextResponse.json(

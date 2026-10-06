@@ -13,6 +13,7 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
+    "db:protect-claves": "tsx prisma/protect-claves.ts",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
     "tauri": "tauri",

@@ -106,6 +106,7 @@ import {
   ChevronUp,
   Eye,
   EyeOff,
+  Lock,
 } from "lucide-react";
 
 interface Person {
@@ -114,7 +115,7 @@ interface Person {
   ip: string | null;
   mac: string | null;
   computerName: string;
-  clave: string | null;
+  hasClave: boolean;
   departmentId: string;
   isDeleted: boolean;
   deletedAt: string | null;
@@ -607,13 +608,17 @@ export default function PeoplePage() {
       }),
       ...(admin?.role === "admin"
         ? [
-            columnHelper.accessor("clave", {
+            columnHelper.accessor("hasClave", {
               header: () => <span>Clave</span>,
-              cell: ({ getValue }) => {
-                const value = getValue();
-                if (!value) return <span className="text-muted-foreground">—</span>;
-                return <ClaveCell value={value} />;
-              },
+              cell: ({ getValue }) =>
+                getValue() ? (
+                  <Badge variant="outline" className="gap-1 font-normal">
+                    <Lock className="h-3 w-3" />
+                    Guardada
+                  </Badge>
+                ) : (
+                  <span className="text-muted-foreground">—</span>
+                ),
               meta: { label: "Clave" } as ExtendedColumnMeta,
               enableSorting: false,
             }),
@@ -725,19 +730,13 @@ export default function PeoplePage() {
                   )}
                   Copiar Equipo
                 </DropdownMenuItem>
-                {person.clave && admin?.role === "admin" && (
-                  <DropdownMenuItem
-                    onClick={() => copyToClipboard(person.clave!, "Clave")}
-                  >
-                    {copiedField === "Clave" ? (
-                      <CopyCheck className="h-4 w-4 text-emerald-500" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                    Copiar Clave
+                {person.hasClave && admin?.role === "admin" && (
+                  <DropdownMenuItem disabled>
+                    <Lock className="h-4 w-4" />
+                    Clave guardada
                   </DropdownMenuItem>
                 )}
-                {(person.ip || person.mac || person.clave) && <DropdownMenuSeparator />}
+                {(person.ip || person.mac) && <DropdownMenuSeparator />}
                 {!person.isDeleted ? (
                   <>
                     <DropdownMenuItem
@@ -1407,7 +1406,7 @@ function PersonFormDialog({
           ip: person.ip ?? "",
           mac: person.mac ?? "",
           computerName: person.computerName,
-          clave: person.clave ?? "",
+          clave: "",
           departmentId: person.departmentId,
         });
       } else {
@@ -1530,7 +1529,12 @@ function PersonFormDialog({
             <Input
               id="person-clave"
               type={claveVisible ? "text" : "password"}
-              placeholder="Clave o contraseña asociada"
+              placeholder={
+                isEditing && person?.hasClave
+                  ? "Dejar vacío para mantener la clave actual"
+                  : "Clave o contraseña asociada"
+              }
+              autoComplete="new-password"
               {...register("clave")}
               className={cn(errors.clave && "border-destructive", "pr-10")}
             />
@@ -1637,29 +1641,6 @@ function EmptyState({
           Limpiar filtros
         </Button>
       )}
-    </div>
-  );
-}
-
-function ClaveCell({ value }: { value: string }) {
-  const [visible, setVisible] = useState(false);
-  return (
-    <div className="flex items-center gap-1.5">
-      <span className="font-mono text-xs">
-        {visible ? value : "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}
-      </span>
-      <button
-        type="button"
-        onClick={() => setVisible(!visible)}
-        className="flex items-center justify-center h-5 w-5 rounded text-muted-foreground hover:text-foreground transition-colors"
-        aria-label={visible ? "Ocultar clave" : "Mostrar clave"}
-      >
-        {visible ? (
-          <EyeOff className="h-3.5 w-3.5" />
-        ) : (
-          <Eye className="h-3.5 w-3.5" />
-        )}
-      </button>
     </div>
   );
 }

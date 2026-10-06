@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { personSchema } from "@/lib/validations";
-import { getSession } from "@/lib/auth";
+import { getSession, hashPassword } from "@/lib/auth";
 
 export async function PUT(
   request: Request,
@@ -32,7 +32,9 @@ export async function PUT(
         ip: parsed.data.ip || null,
         mac: parsed.data.mac || null,
         computerName: parsed.data.computerName,
-        clave: parsed.data.clave || null,
+        ...(parsed.data.clave
+          ? { clave: await hashPassword(parsed.data.clave) }
+          : {}),
         departmentId: parsed.data.departmentId,
       },
       include: {
@@ -40,7 +42,8 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json({ person });
+    const { clave, ...rest } = person;
+    return NextResponse.json({ person: { ...rest, hasClave: !!clave } });
   } catch (error) {
     console.error("PUT person error:", error);
     return NextResponse.json(
